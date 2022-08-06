@@ -48,7 +48,7 @@ class CompressListener:
             m_path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         size = get_path_size(m_path)
         if self.is_archive:
-            path = m_path + ".zip"
+            path = f"{m_path}.zip"
             with download_dict_lock:
                 download_dict[self.uid] = ArchiveStatus(name, size, gid, self)
             LOGGER.info(f"Archiving: {name}")
@@ -78,7 +78,7 @@ class CompressListener:
                     for dirpath, subdir, files in os.walk(m_path, topdown=False):
                         for file_ in files:
                             if file_.endswith((".zip", ".7z")) or re.search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
-                               or (file_.endswith(".rar") and not re.search(r'\.part\d+\.rar$', file_)):
+                                   or (file_.endswith(".rar") and not re.search(r'\.part\d+\.rar$', file_)):
                                 m_path = os.path.join(dirpath, file_)
                                 if self.pswd is not None:
                                     self.suproc = subprocess.Popen(["7z", "x", f"-p{self.pswd}", m_path, f"-o{dirpath}", "-aot"])
@@ -92,7 +92,7 @@ class CompressListener:
                         if self.suproc.returncode == 0:
                             for file_ in files:
                                 if file_.endswith((".rar", ".zip", ".7z")) or \
-                                    re.search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
+                                        re.search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
                                     del_path = os.path.join(dirpath, file_)
                                     os.remove(del_path)
                     path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
@@ -153,9 +153,7 @@ class CompressListener:
             url = f'{INDEX_URL}/{url_path}'
             if os.path.isdir(f'{DOWNLOAD_DIR}/{self.uid}/{name}'):
                 url += '/'
-                msg += f'<b> | <a href="{url}">Index Link</a></b>'
-            else:
-                msg += f'<b> | <a href="{url}">Index Link</a></b>'
+            msg += f'<b> | <a href="{url}">Index Link</a></b>'
         sendMessage(msg, self.bot, self.message)
         clean_download(f'{DOWNLOAD_DIR}{self.uid}')
         with download_dict_lock:
@@ -224,8 +222,11 @@ def _compress(bot, message, is_archive=False, is_extract=False, pswd=None):
     if is_gdrive_link(link):
         threading.Thread(target=add_gd_download, args=(link, listener, is_appdrive, appdict, is_gdtot)).start()
     else:
-        help_msg = '<b><u>Instructions</u></b>\nSend a link along with command'
-        help_msg += '\n\n<b><u>Supported Sites</u></b>\n• Google Drive\n• AppDrive\n• GDToT'
+        help_msg = (
+            '<b><u>Instructions</u></b>\nSend a link along with command'
+            + '\n\n<b><u>Supported Sites</u></b>\n• Google Drive\n• AppDrive\n• GDToT'
+        )
+
         help_msg += '\n\n<b><u>Set Password</u></b>\nAdd "<code>pswd: xxx</code>" after the link'
         sendMessage(help_msg, bot, message)
 
